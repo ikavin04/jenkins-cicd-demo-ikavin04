@@ -1,0 +1,48 @@
+﻿pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+                echo 'Source code checked out'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                bat 'if not exist build mkdir build'
+                bat 'copy /Y index.html build\\index.html'
+                echo 'Build completed'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                bat 'if not exist build\\index.html exit /b 1'
+                bat 'findstr /C:"Welcome to Jenkins CI/CD Pipeline" build\\index.html'
+                echo 'All tests passed'
+            }
+        }
+
+        stage('Package') {
+            steps {
+                powershell '''
+                    Compress-Archive -Path build\\* -DestinationPath app-package.zip -Force
+                '''
+                echo 'Application packaged successfully'
+            }
+        }
+    }
+
+    post {
+        success {
+            archiveArtifacts artifacts: 'app-package.zip'
+            echo 'Artifact archived successfully'
+        }
+
+        failure {
+            echo 'Pipeline failed. Artifact not archived.'
+        }
+    }
+}
