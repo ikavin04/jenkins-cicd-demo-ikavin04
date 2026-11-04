@@ -11,23 +11,37 @@ pipeline {
 
         stage('Build') {
             steps {
-                bat 'if not exist build mkdir build'
-                bat 'copy /Y index.html build/index.html'
+                powershell '''
+                    New-Item -ItemType Directory -Force -Path build | Out-Null
+                    Copy-Item -Path index.html -Destination build/index.html -Force
+                '''
                 echo 'Build completed'
             }
         }
 
         stage('Test') {
             steps {
-                bat 'if not exist build/index.html exit /b 1'
-                bat 'findstr /C:"Welcome to Jenkins CI/CD Pipeline" build/index.html'
-                echo 'All tests passed'
+                powershell '''
+                    if (!(Test-Path "build/index.html")) {
+                        throw "Application file not found"
+                    }
+
+                    $content = Get-Content "build/index.html" -Raw
+
+                    if ($content -notmatch "Welcome to Jenkins CI/CD Pipeline") {
+                        throw "Required heading not found"
+                    }
+
+                    Write-Output "All tests passed"
+                '''
             }
         }
 
         stage('Package') {
             steps {
-                powershell 'Compress-Archive -Path build/* -DestinationPath app-package.zip -Force'
+                powershell '''
+                    Compress-Archive -Path build/* -DestinationPath app-package.zip -Force
+                '''
                 echo 'Application packaged successfully'
             }
         }
