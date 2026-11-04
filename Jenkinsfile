@@ -28,9 +28,9 @@ pipeline {
 
                     $content = Get-Content "build/index.html" -Raw
 
-                    if ($content -notmatch "Welcome to Jenkins CI/CD Pipeline") {
-                        throw "Required heading not found"
-                    }
+                   if ($content -notmatch "Welcome to Updated Jenkins CI/CD Pipeline") {
+    			throw "Required heading not found"
+			}
 
                     Write-Output "All tests passed"
                 '''
