@@ -12,22 +12,22 @@ pipeline {
         stage('Build') {
             steps {
                 bat 'if not exist build mkdir build'
-                bat 'copy /Y index.html build\index.html'
+                bat 'copy /Y index.html build/index.html'
                 echo 'Build completed'
             }
         }
 
         stage('Test') {
             steps {
-                bat 'if not exist build\index.html exit /b 1'
-                bat 'findstr /C:"Welcome to Jenkins CI/CD Pipeline" build\index.html'
+                bat 'if not exist build/index.html exit /b 1'
+                bat 'findstr /C:"Welcome to Jenkins CI/CD Pipeline" build/index.html'
                 echo 'All tests passed'
             }
         }
 
         stage('Package') {
             steps {
-                powershell 'Compress-Archive -Path build\* -DestinationPath app-package.zip -Force'
+                powershell 'Compress-Archive -Path build/* -DestinationPath app-package.zip -Force'
                 echo 'Application packaged successfully'
             }
         }
